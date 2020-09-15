@@ -152,13 +152,15 @@ def print_and_graph_folders()
 
         # 1. Manage Org: I define the node as I'm sure it'll catch up in some folder relationship
         org_domain = $orgs[$org_id]['displayName']
-        triangle << node("organizations/#{$org_id}").label("Org #{$org_id}\nDomain: #{org_domain}")
+        org_label = "Org #{$org_id}\n'#{org_domain}'"
+        triangle << node("organizations/#{$org_id}").label(org_label)
 
         # 2. Manage folders
         puts "Folders: #{$folders}"
         $folders.each do |k, f|
             #puts "Name:", f['name']
-            node("#{f['name']}").label("[F] #{f['displayName']}")
+            folder_label = "#{f['displayName']}/" # alternative: "[F] #{f['displayName']}"
+            rectangle << node("#{f['name']}").label(folder_label) 
             #print f['parent'], " >> " , f['name'], "\n" 
             #square << 
             edge f['parent'], f['name']  # .label( f['displayName'])
@@ -174,7 +176,9 @@ def print_and_graph_folders()
             #  },
             # Same with Folders ;)
             project_parent =  pluralize(v['parent']['type']) + '/' + v['parent']['id']
-            red << node(project_node).label("[P] #{v['projectId']}")
+            #project_label = "[P] #{v['projectId']}" - in case you want to be more verbose on whats a project (or for color blind people)
+            project_label = "#{v['projectId']}"
+            red << node(project_node).label(project_label)
             red << edge(project_parent, project_node)
         end
 
