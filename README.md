@@ -9,3 +9,8 @@ A script to parse Org, Folder, Projects and graph them all together in a conveni
 # BUGS
 
 * Currently uses gcloud to call APIs, so it's slower and more inefficient than it could. Consider this a proof of concept, easy to optimize.
+
+* If you have some tokens it wont work:
+
+     - gcloud config unset auth/authorization_token_file
+     - gcloud config configurations activate default

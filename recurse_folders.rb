@@ -26,18 +26,44 @@ def org_print(level, str)
     $org_print  << "#{level_str}+ #{str}\n"
 end
 
-def fill_org_domain(org_id)
+def fill_org_domain(org_id, opts={})
     #domain = `gcloud organizations describe #{org_id}|egrep ^display`.split(': ')[1].chomp rescue "some-error.com"
-    ret =  JSON.parse(`gcloud organizations describe #{org_id} --format json`)
+    #ret =  JSON.parse(`gcloud organizations describe #{org_id} --format json`)
+    ret = return_hash_from_cached_json_results(org_id, "org-list", "gcloud organizations describe #{org_id} --format json", opts)
     $orgs[org_id] = ret 
-    #puts "+ org and domain: ", $orgs
     org_print 0, "#{org_id} # Domain: '#{ret['displayName']}'"
     #return domain
 end
+def yellow(str)
+    "\033[1;33m#{str}\033[0m"
+end
+=begin
+  you want to call gcloud organizations list? No probs!
+  Cache the content
+
+  return JSON.parse()
+=end
+def return_hash_from_cached_json_results(orgid, filename, command, opts={})
+  out_dir = ".cache/#{orgid}/"
+  cached_filename = "#{out_dir}/#{filename}.json"
+   #`maxlevelkdir -p .cache/`
+   `mkdir -p #{out_dir}/`
+   if File.exists?(cached_filename)
+     puts "File exists '#{cached_filename}': parse JSON from here. #cache_hit" # use hash tags for Stackdriver logging ;)
+     return JSON.parse(File.read(cached_filename))
+   else
+     puts "File does NOT exist: '#{cached_filename}'. Calling gcloud ('#{yellow command}') and then putting stuff into file. #cache_miss"
+     ret = `#{command}`
+     #File.write
+     File.open(cached_filename, "w"){|f| f.write ret}
+     return JSON.parse(ret)
+   end
+end
 
 # I found out its the same API call whether its Org or folder, so this is pointless :) 
-def find_projects_by_org_or_folder(level, parent_id)
-    projects = JSON.parse(`gcloud projects list --filter=parent.id:#{parent_id} --format json`)
+def find_projects_by_org_or_folder(level, parent_id, opts={})
+    #projects = JSON.parse(`gcloud projects list --filter=parent.id:#{parent_id} --format json`)
+    projects = return_hash_from_cached_json_results($org_id, "projects-childrenof-#{parent_id}", "gcloud projects list --filter=parent.id:#{parent_id} --format json", opts)
     #puts "Project(#{parent_type},#{parent_id}): '#{projects[0]}'"
     projects.each{ |p|
         project_id = p['projectId']
@@ -65,8 +91,9 @@ def recurse_folders(folder_ids, level, opts=nil)
     folder_ids.each do |folder_id| 
         org_print level, "Folder/#{folder_id}\t#{$folders["folders/#{folder_id}"]['displayName']}"
         find_projects_by_org_or_folder(level+1, folder_id)
-        nth_level_folders = `gcloud resource-manager folders list --folder=#{folder_id} --format=json`
-        folders = JSON.parse(nth_level_folders)
+        #nth_level_folders = `gcloud resource-manager folders list --folder=#{folder_id} --format=json`
+        #folders = JSON.parse(nth_level_folders)
+        folders = return_hash_from_cached_json_results($org_id, "folder-l#{level}-#{folder_id}-list", "gcloud resource-manager folders list --folder=#{folder_id} --format=json", opts)
         folders.each { |f| 
             f['org'] = $org_id # i already know by defitiono but you never know.
             f['level'] = 1
