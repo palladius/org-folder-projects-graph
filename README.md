@@ -3,8 +3,10 @@ A script to parse Org, Folder, Projects and graph them all together in a conveni
 
 # INSTALL
 
-* bundle install
+* bundle install # TODO(ricc)
 * ruby recurse_folders.rb
+
+Testewd on ruby 2.6.3p62 and by gem installing whats needed.
 
 # BUGS
 
