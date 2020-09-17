@@ -149,8 +149,11 @@ end
 
 def print_and_graph_folders()
     #1. print tree in string (manually made)
-    puts "== Org Print =="
+    debs "== Org Print =="
     print $org_print
+    File.open("out/recursive-#{$org_id}.txt", "w"){|f| f.write $org_print}
+
+
     
     #2. now .dot and .png
     debs "Now Graphviz-ing..."
