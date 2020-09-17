@@ -18,12 +18,18 @@ $orgs = {}  # get_org_domain and stuff
 $projects = {}
 $stop_un_duplicates = false
 $org_print = ''
+$debug = false
+$org_icon     = '🌲' # 🌍 evergree tree: https://www.utf8icons.com/character/127794/evergreen-tree
+$folder_icon  = '📂' # 📁 open folder: https://www.utf8icons.com/character/128194/open-file-folder
+$project_icon = '🍕' # since I'm italianl if not consider '➤📘📗📙📒📌🔸🔶'  https://www.utf8icons.com/character/127829/slice-of-pizza
 
 # remember what to print fopr the org, helps with TXT version of tree.
 def org_print(level, str)
     # this will simulate the tree :) 
-    level_str = " " * 2 * level
-    $org_print  << "#{level_str}+ #{str}\n"
+    # Three spaces per level
+    level_str = level==0 ? "#{$org_icon} " : 
+        (" " * 4 * (level-1) + "├─ ") # UTF8: ⮑  ASCII large:╠ ╚═ small: "├└─"
+    $org_print  << "#{level_str}#{str}\n"
 end
 
 def fill_org_domain(org_id, opts={})
@@ -31,12 +37,17 @@ def fill_org_domain(org_id, opts={})
     #ret =  JSON.parse(`gcloud organizations describe #{org_id} --format json`)
     ret = return_hash_from_cached_json_results(org_id, "org-list", "gcloud organizations describe #{org_id} --format json", opts)
     $orgs[org_id] = ret 
-    org_print 0, "#{org_id} # Domain: '#{ret['displayName']}'"
+    org_print 0, "#{org_id} # '#{ret['displayName']}'"
     #return domain
 end
 def yellow(str)
     "\033[1;33m#{str}\033[0m"
 end
+
+def debs(str)
+    puts("#DEB " + str) if $debug
+end
+
 =begin
   you want to call gcloud organizations list? No probs!
   Cache the content
@@ -49,7 +60,7 @@ def return_hash_from_cached_json_results(orgid, filename, command, opts={})
    #`maxlevelkdir -p .cache/`
    `mkdir -p #{out_dir}/`
    if File.exists?(cached_filename)
-     puts "File exists '#{cached_filename}': parse JSON from here. #cache_hit" # use hash tags for Stackdriver logging ;)
+     debs "File exists '#{cached_filename}': parse JSON from here. #cache_hit" # use hash tags for Stackdriver logging ;)
      return JSON.parse(File.read(cached_filename))
    else
      puts "File does NOT exist: '#{cached_filename}'. Calling gcloud ('#{yellow command}') and then putting stuff into file. #cache_miss"
@@ -67,7 +78,7 @@ def find_projects_by_org_or_folder(level, parent_id, opts={})
     #puts "Project(#{parent_type},#{parent_id}): '#{projects[0]}'"
     projects.each{ |p|
         project_id = p['projectId']
-        org_print(level, "Project/#{p['projectNumber']}\t#{project_id}")
+        org_print(level, "#{$project_icon} #{project_id} (#{p['projectNumber']})")
         p[:riccardo] = {}
         #p[:riccardo][:parent_type_obsolete] = parent_type # TODO(ricc): remove this when you can
         p[:riccardo][:parent_id] = parent_id
@@ -87,9 +98,9 @@ def recurse_folders(folder_ids, level, opts=nil)
     opts[:maxlevel] ||= 100
     return if opts[:maxlevel] < level 
     #opts[:maxlevel] = 100 unless opts.maxlevel if exists?(maxlevel)
-    print "DEB recurse_folders(folders, level, opts) = (#{folder_ids}, #{level}, #{opts})\n"
+    debs "recurse_folders(folders, level, opts) = (#{folder_ids}, #{level}, #{opts})"
     folder_ids.each do |folder_id| 
-        org_print level, "Folder/#{folder_id}\t#{$folders["folders/#{folder_id}"]['displayName']}"
+        org_print level, "#{$folder_icon} #{folder_id} (#{$folders["folders/#{folder_id}"]['displayName']})"
         find_projects_by_org_or_folder(level+1, folder_id)
         #nth_level_folders = `gcloud resource-manager folders list --folder=#{folder_id} --format=json`
         #folders = JSON.parse(nth_level_folders)
@@ -142,7 +153,7 @@ def print_and_graph_folders()
     print $org_print
     
     #2. now .dot and .png
-    puts "Now Graphviz-ing..."
+    debs "Now Graphviz-ing..."
     digraph do
         # in DOT for consistency I'll have all objects named like this:
         # - organizations/12345
@@ -156,7 +167,7 @@ def print_and_graph_folders()
         triangle << node("organizations/#{$org_id}").label(org_label)
 
         # 2. Manage folders
-        puts "Folders: #{$folders}"
+        debs "Folders: #{$folders}"
         $folders.each do |k, f|
             #puts "Name:", f['name']
             folder_label = "#{f['displayName']}/" # alternative: "[F] #{f['displayName']}"
@@ -168,7 +179,7 @@ def print_and_graph_folders()
         end
         # 3. Manage projects
         $projects.each do |k,v|
-            puts v['parent']
+            #puts v['parent']
             project_node =  "projects/#{v['projectNumber']}"
             #  "parent": {
             #    "id": "824879804362",
@@ -186,15 +197,15 @@ def print_and_graph_folders()
         save "out/recursive-#{$org_id}", "png"
     end
 
-    print "# Generated dot file..\n"
-    print File.read("out/recursive-#{$org_id}.dot")
+    debs "# Generated dot file.."
+    debs File.read("out/recursive-#{$org_id}.dot")
 
 end
 
 def utilizatio()
-    puts "'Organizatio non petita, sed organizatio necesida' (Yes its a mix of Latin and Spanish)"
+    puts "👁 'Organizatio non petita, sed organizatio necesida' (Yes its a mix of Latin and Spanish)"
     puts "Consuetudo: #{$0} <organization_id> [--folder-recursion=11] [--skip-projects] [--no-cache-content]"
-    puts "Pick `organization_id` from the second column of: `gcloud organizations list`. Let me call that for you, slacker:"
+    puts "👀 Pick `organization_id` from the second column of: `gcloud organizations list`. Let me call that for you, slacker:"
     puts `gcloud organizations list`
     exit 43
 end
