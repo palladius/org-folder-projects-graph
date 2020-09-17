@@ -19,7 +19,7 @@ $projects = {}
 $stop_un_duplicates = false
 $org_print = ''
 $debug = false
-$org_icon     = '🌲' # 🌍 evergree tree: https://www.utf8icons.com/character/127794/evergreen-tree
+$org_icon     = '🌲' # 🌍🗃 evergree tree: https://www.utf8icons.com/character/127794/evergreen-tree
 $folder_icon  = '📂' # 📁 open folder: https://www.utf8icons.com/character/128194/open-file-folder
 $project_icon = '🍕' # since I'm italianl if not consider '➤📘📗📙📒📌🔸🔶'  https://www.utf8icons.com/character/127829/slice-of-pizza
 
