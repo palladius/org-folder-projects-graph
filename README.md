@@ -53,6 +53,17 @@ I actually borrowed this awesome visualization (see in `out` for latest values):
      - gcloud config unset auth/authorization_token_file
      - gcloud config configurations activate default
 
+# TODOs
+
+Consider making the script faster with a couple of tips:
+
+* Use APIs directly instead of gcloud (duh!)
+* Optimize API call logically. for instance, I could fetch ALL folders in an org with a single call (today impossible) or all project in an Org once I know N folders (I believe this is possible using filters - see below).
+* Smart filtering with gcloud: https://cloud.google.com/blog/products/gcp/filtering-and-formatting-fun-with
+* Get alll folders at once using this aPI. Funny enough, this API is so powerful it spans across multiple orgs, not sure how to restrict it :)
+
+    curl -H "Authorization: Bearer `gcloud auth print-access-token`" -X POST https://cloudresourcemanager.googleapis.com/v2/folders:search
+
 # Thanks
 
 * https://github.com/angstwad Paul Durivage (creator of gcp-org-hierarchy-viewer) for the graphics.
