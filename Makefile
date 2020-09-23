@@ -1,6 +1,9 @@
 
-setup:
-	mkdir out
+help:
+	cat Makefile
+
+#setup:
+#	mkdir -p out
 
 cache-clean:
 	rm -rf .cache/*
