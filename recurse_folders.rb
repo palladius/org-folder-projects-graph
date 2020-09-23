@@ -4,7 +4,7 @@
   My question asked here: https://stackoverflow.com/questions/63851466/how-to-get-all-the-gcp-folders-from-an-organization-with-gcloud/63852670#63852670
 =end
 
-$org_id = nil 
+$org_id = nil
 
 require 'json'
 require 'erb'
@@ -19,15 +19,16 @@ $projects = {}
 $stop_un_duplicates = false
 $org_print = ''
 $debug = false
-$org_icon     = '🌲' # 🌍🗃 evergree tree: https://www.utf8icons.com/character/127794/evergreen-tree
+$org_icon     = '🌲' # 🗃 evergree tree: https://www.utf8icons.com/character/127794/evergreen-tree
 $folder_icon  = '📂' # 📁 open folder: https://www.utf8icons.com/character/128194/open-file-folder
 $project_icon = '🍕' # since I'm italianl if not consider '➤📘📗📙📒📌🔸🔶'  https://www.utf8icons.com/character/127829/slice-of-pizza
+$domain_icon = '🌍'  # for example.com
 
 # remember what to print fopr the org, helps with TXT version of tree.
 def org_print(level, str)
-    # this will simulate the tree :) 
+    # this will simulate the tree :)
     # Three spaces per level
-    level_str = level==0 ? "#{$org_icon} " : 
+    level_str = level==0 ? "#{$org_icon} " :
         (" " * 4 * (level-1) + "├─ ") # UTF8: ⮑  ASCII large:╠ ╚═ small: "├└─"
     $org_print  << "#{level_str}#{str}\n"
 end
@@ -36,7 +37,7 @@ def fill_org_domain(org_id, opts={})
     #domain = `gcloud organizations describe #{org_id}|egrep ^display`.split(': ')[1].chomp rescue "some-error.com"
     #ret =  JSON.parse(`gcloud organizations describe #{org_id} --format json`)
     ret = return_hash_from_cached_json_results(org_id, "org-list", "gcloud organizations describe #{org_id} --format json", opts)
-    $orgs[org_id] = ret 
+    $orgs[org_id] = ret
     org_print 0, "#{org_id} # '#{ret['displayName']}'"
     #return domain
 end
@@ -71,7 +72,7 @@ def return_hash_from_cached_json_results(orgid, filename, command, opts={})
    end
 end
 
-# I found out its the same API call whether its Org or folder, so this is pointless :) 
+# I found out its the same API call whether its Org or folder, so this is pointless :)
 def find_projects_by_org_or_folder(level, parent_id, opts={})
     #projects = JSON.parse(`gcloud projects list --filter=parent.id:#{parent_id} --format json`)
     projects = return_hash_from_cached_json_results($org_id, "projects-childrenof-#{parent_id}", "gcloud projects list --filter=parent.id:#{parent_id} --format json", opts)
@@ -84,28 +85,28 @@ def find_projects_by_org_or_folder(level, parent_id, opts={})
         p[:riccardo][:parent_id] = parent_id
         #p[:riccardo][:project_id] = project_id # delteme redundant once you know it works
         p[:riccardo][:level] = level
-        
-        #puts p 
+
+        #puts p
         $projects[project_id]=p
     }
 
 end
 
 #TODO(ricc): refactor into accepting a single folder... thats how it works anyway recurively, with exception of
-# 
+#
 # given a list of folder_ids, goes deep into those...
 def recurse_folders(folder_ids, level, opts=nil)
     opts[:maxlevel] ||= 100
-    return if opts[:maxlevel] < level 
+    return if opts[:maxlevel] < level
     #opts[:maxlevel] = 100 unless opts.maxlevel if exists?(maxlevel)
     debs "recurse_folders(folders, level, opts) = (#{folder_ids}, #{level}, #{opts})"
-    folder_ids.each do |folder_id| 
+    folder_ids.each do |folder_id|
         org_print level, "#{$folder_icon} #{folder_id} (#{$folders["folders/#{folder_id}"]['displayName']})"
         find_projects_by_org_or_folder(level+1, folder_id)
         #nth_level_folders = `gcloud resource-manager folders list --folder=#{folder_id} --format=json`
         #folders = JSON.parse(nth_level_folders)
         folders = return_hash_from_cached_json_results($org_id, "folder-l#{level}-#{folder_id}-list", "gcloud resource-manager folders list --folder=#{folder_id} --format=json", opts)
-        folders.each { |f| 
+        folders.each { |f|
             f['org'] = $org_id # i already know by defitiono but you never know.
             f['level'] = 1
             f['folder_id'] = f['name'].split('/')[1]
@@ -130,9 +131,9 @@ end
 def recurse_org(orgid, opts={})
     fill_org_domain(orgid)
     find_projects_by_org_or_folder(1, orgid)
-    first_level_folders = `gcloud resource-manager folders list --organization="#{orgid}" --format=json`  
+    first_level_folders = `gcloud resource-manager folders list --organization="#{orgid}" --format=json`
     folders = JSON.parse(first_level_folders)
-    folders.each { |f| 
+    folders.each { |f|
         f['org'] = $org_id # i already know by defitiono but you never know.
         f['level'] = 1
         f['folder_id'] = f['name'].split('/')[1]
@@ -154,7 +155,7 @@ def print_and_graph_folders()
     File.open("out/recursive-#{$org_id}.txt", "w"){|f| f.write $org_print}
 
 
-    
+
     #2. now .dot and .png
     debs "Now Graphviz-ing..."
     digraph do
@@ -166,17 +167,17 @@ def print_and_graph_folders()
 
         # 1. Manage Org: I define the node as I'm sure it'll catch up in some folder relationship
         org_domain = $orgs[$org_id]['displayName']
-        org_label = "Org #{$org_id}\n'#{org_domain}'"
+        org_label = "#{$org_icon} Org #{$org_id}\n#{$domain_icon} '#{org_domain}'"
         triangle << node("organizations/#{$org_id}").label(org_label)
 
         # 2. Manage folders
         debs "Folders: #{$folders}"
         $folders.each do |k, f|
             #puts "Name:", f['name']
-            folder_label = "#{f['displayName']}/" # alternative: "[F] #{f['displayName']}"
-            rectangle << node("#{f['name']}").label(folder_label) 
-            #print f['parent'], " >> " , f['name'], "\n" 
-            #square << 
+            folder_label = "#{$folder_icon} #{f['displayName']}" # removed slash and added nice icon
+            rectangle << node("#{f['name']}").label(folder_label)
+            #print f['parent'], " >> " , f['name'], "\n"
+            #square <<
             edge f['parent'], f['name']  # .label( f['displayName'])
             #self[f['parent']][f['name']] # .label( f['displayName'])
         end
@@ -190,10 +191,10 @@ def print_and_graph_folders()
             #  },
             # Same with Folders ;)
             project_parent =  pluralize(v['parent']['type']) + '/' + v['parent']['id']
-            #project_label = "[P] #{v['projectId']}" - in case you want to be more verbose on whats a project (or for color blind people)
-            project_label = "#{v['projectId']}"
-            red << node(project_node).label(project_label)
-            red << edge(project_parent, project_node)
+            project_label = "#{$project_icon} #{v['projectId']}"
+            white << node(project_node).label(project_label)
+            #red <<
+            edge(project_parent, project_node)
         end
 
         # End of all
@@ -217,7 +218,7 @@ def main()
     if $org_id.nil?
         utilizatio()
     end
-    if $org_id =~ /\./ 
+    if $org_id =~ /\./
         puts "Seriously? Are you seriously so lazy you cant provide me with org id and want me to commute it for you? All right I will"
         puts "Not implemented yet: gcloud organizations list --format json and look for string -> number mapping"
         list = JSON.parse(`gcloud organizations list --format json`)
