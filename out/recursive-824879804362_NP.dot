@@ -1,0 +1,33 @@
+digraph 
+  {
+    node [ color = lightblue, style = "filled" ];
+    "organizations/824879804362" [ label = "Org 824879804362\n'palladi.us'",shape = "triangle" ];
+    "folders/993609995477" [ label = "customers/",shape = "rectangle" ];
+    "folders/885056483479" [ label = "dev and test/",shape = "rectangle" ];
+    "folders/887288965373" [ label = "prod stuff - for real/",shape = "rectangle" ];
+    "folders/510416893777" [ label = "TFR Terraformed by Ricc/",shape = "rectangle" ];
+    "folders/571390668780" [ label = "dirimpettai di EURF/",shape = "rectangle" ];
+    "folders/128544652663" [ label = "folderillo/",shape = "rectangle" ];
+    "folders/93350088776" [ label = "TF DEV/",shape = "rectangle" ];
+    "folders/723110142384" [ label = "TF0b - titius/",shape = "rectangle" ];
+    "folders/454527359325" [ label = "TF1 - foo/",shape = "rectangle" ];
+    "folders/1026736501110" [ label = "TF1b - caius/",shape = "rectangle" ];
+    "folders/403965627320" [ label = "TF2 - bar/",shape = "rectangle" ];
+    "folders/802144187596" [ label = "TF2b - sempronius/",shape = "rectangle" ];
+    "folders/986862742068" [ label = "TF3 - baz/",shape = "rectangle" ];
+    "folders/99919748229" [ label = "TF PROD/",shape = "rectangle" ];
+    "organizations/824879804362" -> "folders/993609995477";
+    "organizations/824879804362" -> "folders/885056483479";
+    "organizations/824879804362" -> "folders/887288965373";
+    "organizations/824879804362" -> "folders/510416893777";
+    "folders/993609995477" -> "folders/571390668780";
+    "folders/885056483479" -> "folders/128544652663";
+    "folders/510416893777" -> "folders/93350088776";
+    "folders/93350088776" -> "folders/723110142384";
+    "folders/93350088776" -> "folders/454527359325";
+    "folders/93350088776" -> "folders/1026736501110";
+    "folders/93350088776" -> "folders/403965627320";
+    "folders/93350088776" -> "folders/802144187596";
+    "folders/93350088776" -> "folders/986862742068";
+    "folders/510416893777" -> "folders/99919748229";
+  }
