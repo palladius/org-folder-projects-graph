@@ -57,3 +57,4 @@ build-iPhoneSimulator/
 .ricc/
 .DS_Store
 Gemfile.lock
+.vecchiume/

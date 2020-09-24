@@ -17,6 +17,7 @@ process_file() {
   else
    #dot -Tps -l lib.ps file.gv -o file.ps
     dot -Tpng "$SRC" -o "$OUT"
+    twopi -Tpng "$SRC" -o "$(basename $1 .dot)".twopi.png
   fi
   cat "$SRC" | grep -v 'projects/' >"$SRC_NP"
   dot -Tpng "$SRC_NP" -o "$OUT_NP"
