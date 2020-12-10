@@ -67,4 +67,5 @@ Consider making the script faster with a couple of tips:
 # Thanks
 
 * https://github.com/angstwad Paul Durivage (creator of gcp-org-hierarchy-viewer) for the graphics.
+* My friend Daz for the script in `3rd-party/` which seems the best solution on purely bash solution (crazy you!)
 
