@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 =begin
   This script tries to address the problem of recurively
   get folders and projects from an org locally.
@@ -60,8 +62,8 @@ def return_hash_from_cached_json_results(orgid, filename, command, opts={})
   cached_filename = "#{out_dir}/#{filename}.json"
    #`maxlevelkdir -p .cache/`
    `mkdir -p #{out_dir}/`
-   if File.exists?(cached_filename)
-     debs "File exists '#{cached_filename}': parse JSON from here. #cache_hit" # use hash tags for Stackdriver logging ;)
+   if File.exist?(cached_filename)
+     debs "File exist '#{cached_filename}': parse JSON from here. #cache_hit" # use hash tags for Stackdriver logging ;)
      return JSON.parse(File.read(cached_filename))
    else
      puts "File does NOT exist: '#{cached_filename}'. Calling gcloud ('#{yellow command}') and then putting stuff into file. #cache_miss"
@@ -98,7 +100,7 @@ end
 def recurse_folders(folder_ids, level, opts=nil)
     opts[:maxlevel] ||= 100
     return if opts[:maxlevel] < level
-    #opts[:maxlevel] = 100 unless opts.maxlevel if exists?(maxlevel)
+    #opts[:maxlevel] = 100 unless opts.maxlevel if exist?(maxlevel)
     debs "recurse_folders(folders, level, opts) = (#{folder_ids}, #{level}, #{opts})"
     folder_ids.each do |folder_id|
         org_print level, "#{$folder_icon} #{folder_id} (#{$folders["folders/#{folder_id}"]['displayName']})"

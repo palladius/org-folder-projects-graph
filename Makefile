@@ -10,3 +10,6 @@ cache-clean:
 
 run:
 	ruby recurse_folders.rb
+
+run-all:
+	./recurse_all.sh
