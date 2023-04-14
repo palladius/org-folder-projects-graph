@@ -18,6 +18,7 @@ digraph
     "folders/99919748229" [ label = "📂 TF PROD",shape = "rectangle" ];
     "folders/571390668780" [ label = "📂 dirimpettai di EURF",shape = "rectangle" ];
     "folders/128544652663" [ label = "📂 folderillo",shape = "rectangle" ];
+    "projects/826069816033" [ label = "🍕 tfws-1679135327521",color = white ];
     "projects/882043492617" [ label = "🍕 da-cicd-tests",color = white ];
     "projects/268290255727" [ label = "🍕 metarepo",color = white ];
     "projects/398198244705" [ label = "🍕 xpn-main",color = white ];
@@ -47,6 +48,7 @@ digraph
     "folders/510416893777" -> "folders/99919748229";
     "folders/993609995477" -> "folders/571390668780";
     "folders/885056483479" -> "folders/128544652663";
+    "organizations/824879804362" -> "projects/826069816033";
     "organizations/824879804362" -> "projects/882043492617";
     "organizations/824879804362" -> "projects/268290255727";
     "organizations/824879804362" -> "projects/398198244705";

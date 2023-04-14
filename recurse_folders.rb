@@ -38,6 +38,7 @@ end
 def fill_org_domain(org_id, opts={})
     #domain = `gcloud organizations describe #{org_id}|egrep ^display`.split(': ')[1].chomp rescue "some-error.com"
     #ret =  JSON.parse(`gcloud organizations describe #{org_id} --format json`)
+    ## [2023] There must be a bug, since this file ends up being always EMPTY :/
     ret = return_hash_from_cached_json_results(org_id, "org-list", "gcloud organizations describe #{org_id} --format json", opts)
     $orgs[org_id] = ret
     org_print 0, "#{org_id} # '#{ret['displayName']}'"
@@ -215,6 +216,7 @@ def utilizatio()
     puts `gcloud organizations list`
     exit 43
 end
+
 def main()
     $org_id = ARGV[0] rescue nil
     if $org_id.nil?
@@ -223,7 +225,8 @@ def main()
     if $org_id =~ /\./
         puts "Seriously? Are you seriously so lazy you cant provide me with org id and want me to commute it for you? All right I will"
         puts "Not implemented yet: gcloud organizations list --format json and look for string -> number mapping"
-        list = JSON.parse(`gcloud organizations list --format json`)
+        # Cheap new file :)
+        list = JSON.parse(`gcloud organizations list --format json | tee .cache/all/org-list-2023.json`)
         # {
         #     "creationTime": "2020-04-30T17:38:59.058Z",
         #     "displayName": "sredemo.dev",
